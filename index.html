@@ -3,76 +3,137 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Planner Profissional - Paulo</title>
+    <title>Sistema Paulo - Gestão e Produção</title>
     <style>
-        body { font-family: sans-serif; background: #f0f2f5; margin: 0; padding: 15px; }
-        .box { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 500px; margin: auto; }
-        h2 { color: #1a73e8; text-align: center; }
-        input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 16px; }
-        button { width: 100%; padding: 15px; background: #1a73e8; color: white; border: none; border-radius: 5px; font-weight: bold; font-size: 16px; cursor: pointer; }
-        .task { background: #fff; border-left: 5px solid #1a73e8; padding: 10px; margin-top: 10px; border-radius: 5px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
-        .atrasado { border-left: 5px solid #d93025; background: #fce8e6; }
-        .info { font-size: 14px; }
-        .remover { background: #5f6368; padding: 5px 10px; width: auto; font-size: 12px; }
+        :root { --primary: #1a73e8; --success: #28a745; --warning: #f39c12; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; padding: 10px; }
+        .container { max-width: 500px; margin: auto; background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #333; margin-bottom: 15px; }
+        
+        /* Estilo do Formulário (Só aparece na Gestão) */
+        #form-gestao { background: #eef2f7; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #d1d9e6; }
+        label { font-weight: bold; font-size: 13px; display: block; margin-top: 8px; }
+        input, select { width: 100%; padding: 10px; margin-top: 4px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+        .btn-enviar { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: bold; margin-top: 15px; cursor: pointer; }
+
+        /* Estilo dos Cards */
+        .card { background: white; border-left: 8px solid var(--primary); padding: 15px; margin-top: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); position: relative; }
+        .card.pronto { border-left-color: var(--success); background: #f0fff4; }
+        .cliente { font-size: 1.1rem; font-weight: bold; color: var(--primary); }
+        .info { font-size: 0.95rem; margin: 5px 0; color: #444; }
+        .data { font-size: 0.85rem; color: #d93025; font-weight: bold; }
+        
+        /* Botões Dinâmicos */
+        .btn-acao { width: 100%; padding: 12px; border: none; border-radius: 6px; font-weight: bold; margin-top: 10px; cursor: pointer; }
+        .btn-pronto { background: var(--warning); color: white; }
+        .btn-entregar { background: var(--success); color: white; }
+        .btn-del { position: absolute; top: 10px; right: 10px; background: none; border: none; color: #ccc; cursor: pointer; }
     </style>
 </head>
 <body>
 
-<div class="box">
-    <h2>Meu Planner Online</h2>
-    <input type="text" id="taskName" placeholder="O que precisa fazer?">
-    <label style="font-size: 12px;">Prazo Final:</label>
-    <input type="datetime-local" id="taskDeadline">
-    <button onclick="add()">ADICIONAR TAREFA</button>
-    <div id="lista"></div>
+<div class="container">
+    <h2 id="titulo-pagina">Painel de Gestão</h2>
+
+    <div id="form-gestao">
+        <label>👤 Cliente:</label>
+        <input type="text" id="cli" placeholder="Nome do cliente">
+        <label>📅 Data de Envio:</label>
+        <input type="datetime-local" id="dat">
+        <label>👕 Produto / Cor / Estampa:</label>
+        <input type="text" id="det" placeholder="Ex: Camiseta G, Azul, Logo Peito">
+        <label>💰 Pagamento:</label>
+        <select id="pag">
+            <option value="PENDENTE">Pendente</option>
+            <option value="METADE">50% Pago</option>
+            <option value="TOTAL">Totalmente Pago</option>
+        </select>
+        <button class="btn-enviar" onclick="cadastrar()">LANÇAR PARA PRODUÇÃO</button>
+    </div>
+
+    <div id="lista">Carregando pedidos...</div>
 </div>
 
 <script>
-    let tasks = JSON.parse(localStorage.getItem('minhasTarefas')) || [];
+    // ⚠️ COLOQUE SUA URL DO GOOGLE ABAIXO
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxptJfRSBxTmxJHyxFulO2zYWnrLAaZxd-U00VKITcp21rYTuExf7KYSOM05AR8qHoaBA/exec";
 
-    function add() {
-        const name = document.getElementById('taskName').value;
-        const date = document.getElementById('taskDeadline').value;
-        if(!name || !date) return alert("Preencha o nome e a data!");
+    // Detectar se é Produção ou Gestão pelo link
+    const params = new URLSearchParams(window.location.search);
+    const eProducao = params.has('producao');
 
-        tasks.push({ id: Date.now(), name, date });
-        salvar();
+    if (eProducao) {
+        document.getElementById('form-gestao').style.display = 'none';
+        document.getElementById('titulo-pagina').innerText = "Fila de Produção 🛠️";
     }
 
-    function salvar() {
-        localStorage.setItem('minhasTarefas', JSON.stringify(tasks));
-        desenhar();
+    async function listar() {
+        try {
+            const res = await fetch(SCRIPT_URL);
+            const data = await res.json();
+            const listaDiv = document.getElementById('lista');
+            listaDiv.innerHTML = '';
+
+            data.reverse().forEach(p => {
+                const concluido = p.status === "CONCLUÍDO";
+                
+                // Na tela da produção, NÃO mostramos o que já está pronto
+                if (eProducao && concluido) return;
+
+                const div = document.createElement('div');
+                div.className = `card ${concluido ? 'pronto' : ''}`;
+                
+                const dataF = new Date(p.dataEnvio).toLocaleString('pt-BR', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'});
+
+                div.innerHTML = `
+                    <button class="btn-del" onclick="deletar('${p.id}')">X</button>
+                    <div class="cliente">👤 ${p.cliente}</div>
+                    <div class="data">📅 Envio: ${dataF}</div>
+                    <div class="info"><strong>Detalhes:</strong> ${p.produto}</div>
+                    <div class="info">💰 <strong>Status:</strong> ${p.quitado}</div>
+                    
+                    ${!concluido ? 
+                        `<button class="btn-acao btn-pronto" onclick="marcarPronto('${p.id}')">MARCAR COMO PRONTO</button>` : 
+                        `<button class="btn-acao btn-entregar" onclick="deletar('${p.id}')">📦 ENTREGAR / SUMIR DA LISTA</button>`
+                    }
+                `;
+                listaDiv.appendChild(div);
+            });
+        } catch (e) { console.log("Erro"); }
     }
 
-    function remover(id) {
-        tasks = tasks.filter(t => t.id !== id);
-        salvar();
-    }
+    async function cadastrar() {
+        const cli = document.getElementById('cli').value;
+        const dat = document.getElementById('dat').value;
+        const det = document.getElementById('det').value;
+        const pag = document.getElementById('pag').value;
 
-    function desenhar() {
-        const lista = document.getElementById('lista');
-        lista.innerHTML = '';
-        const agora = new Date();
+        if(!cli || !det) return alert("Preencha o cliente e produto!");
 
-        tasks.forEach(t => {
-            const prazo = new Date(t.date);
-            const taAtrasado = agora > prazo;
-            
-            const div = document.createElement('div');
-            div.className = `task ${taAtrasado ? 'atrasado' : ''}`;
-            div.innerHTML = `
-                <div class="info">
-                    <strong>${t.name}</strong><br>
-                    ${taAtrasado ? '🚨 ATRASADO: ' : '⏳ Prazo: '} ${prazo.toLocaleString('pt-BR')}
-                </div>
-                <button class="remover" onclick="remover(${t.id})">X</button>
-            `;
-            lista.appendChild(div);
+        await fetch(SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: "add", id: Date.now(), cliente: cli, dataEnvio: dat, produto: det, quitado: pag })
         });
+        
+        document.getElementById('cli').value = '';
+        document.getElementById('det').value = '';
+        listar();
     }
 
-    setInterval(desenhar, 1000); // Atualiza o relógio a cada segundo
-    desenhar();
+    async function marcarPronto(id) {
+        await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: "done", id: id }) });
+        listar();
+    }
+
+    async function deletar(id) {
+        if(confirm("Confirmar ação?")) {
+            await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: "delete", id: id }) });
+            listar();
+        }
+    }
+
+    setInterval(listar, 10000);
+    listar();
 </script>
 
 </body>
