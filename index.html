@@ -136,17 +136,46 @@
     }
 
     async function salvarProduto() {
-        const dados = {
-            action: "addProduto",
-            cod: document.getElementById('p_cod').value,
-            prod: document.getElementById('p_nome').value,
-            total: document.getElementById('vlr_final').innerText
-        };
-        await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(dados) });
-        alert("Produto e Ficha Técnica Salvos!");
+    const btn = event.target; // Pega o botão que foi clicado
+    btn.disabled = true;
+    btn.innerText = "SALVANDO NO BANCO...";
+
+    // Coleta todos os dados da tela, incluindo os que estavam faltando
+    const dados = {
+        action: "addProduto",
+        cod: document.getElementById('p_cod').value,
+        prod: document.getElementById('p_nome').value,
+        custo: document.getElementById('p_custo_mp').value,
+        margem: document.getElementById('p_margem').value,
+        fixo: document.getElementById('p_fixo').value,
+        taxa: document.getElementById('p_taxa').value,
+        total: document.getElementById('vlr_final').innerText // Aqui vai o valor final calculado
+    };
+
+    try {
+        const response = await fetch(SCRIPT_URL, { 
+            method: 'POST', 
+            body: JSON.stringify(dados) 
+        });
+        
+        if (response.ok) {
+            alert("✅ Produto e Precificação salvos com sucesso!");
+            // Opcional: Limpar campos após salvar
+            // location.reload(); 
+        } else {
+            throw new Error();
+        }
+    } catch(e) {
+        alert("❌ Erro ao salvar. Verifique se o Script do Google está como 'Qualquer pessoa'.");
+    } finally {
+        btn.disabled = false;
+        btn.innerText = "SALVAR PRODUTO FINAL NO BANCO";
+    }
+}
     }
 
     window.onload = addLinhaMP;
 </script>
 </body>
 </html>
+
