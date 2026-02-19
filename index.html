@@ -3,97 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SISTEMA PAULO 2.0 - ERP ARROJADO</title>
+    <title>SISTEMA PAULO 2.0 - GESTÃO DE ESTOQUE</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background: #f4f7f6; padding: 10px; }
-        .container-erp { max-width: 900px; margin: auto; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        .nav-tabs .nav-link { color: #555; font-weight: bold; cursor: pointer; }
-        .nav-tabs .nav-link.active { border-bottom: 4px solid #0d6efd; color: #0d6efd; }
+        body { background: #f4f7f6; padding: 10px; font-size: 14px; }
+        .container-erp { max-width: 950px; margin: auto; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
         .aba-conteudo { display: none; padding-top: 20px; }
         .aba-ativa { display: block; }
-        .card-calculo { background: #e9ecef; border-radius: 10px; padding: 15px; margin-top: 15px; }
-        .btn-salvar { background: #28a745; color: white; font-weight: bold; width: 100%; padding: 15px; border: none; border-radius: 8px; margin-top: 20px; }
+        .nav-link { cursor: pointer; font-weight: bold; color: #666; }
+        .nav-link.active { color: #0d6efd !important; border-bottom: 3px solid #0d6efd !important; }
+        .bg-calculo { background: #f8f9fa; border: 1px solid #ddd; padding: 15px; border-radius: 8px; }
     </style>
 </head>
 <body>
 
 <div class="container-erp">
-    <h3 class="text-center mb-4 text-primary">📊 GESTÃO INTEGRADA PAULO</h3>
+    <h4 class="text-center text-primary mb-4">💎 GESTÃO DE ESTOQUE E CUSTOS</h4>
 
-    <ul class="nav nav-tabs justify-content-center" id="menu">
-      <li class="nav-item"><a class="nav-link active" onclick="abrirAba('aba-vendas')">PEDIDOS</a></li>
-      <li class="nav-item"><a class="nav-link" onclick="abrirAba('aba-clientes')">CLIENTES</a></li>
-      <li class="nav-item"><a class="nav-link" onclick="abrirAba('aba-produtos')">FICHA TÉCNICA</a></li>
-      <li class="nav-item"><a class="nav-link" onclick="abrirAba('aba-estoque')">ESTOQUE MP</a></li>
+    <ul class="nav nav-tabs justify-content-center">
+      <li class="nav-item"><a class="nav-link" onclick="abrirAba('aba-vendas')">PEDIDOS</a></li>
+      <li class="nav-item"><a class="nav-link" onclick="abrirAba('aba-estoque')">ENTRADA MATÉRIA-PRIMA</a></li>
+      <li class="nav-item"><a class="nav-link active" onclick="abrirAba('aba-produtos')">FICHA TÉCNICA</a></li>
     </ul>
 
+    <div id="aba-estoque" class="aba-conteudo">
+        <h5>📦 Entrada de Materiais (Compra)</h5>
+        <div class="row g-2 card p-3 shadow-sm">
+            <div class="col-md-2"><label>Cód. MP:</label><input type="text" id="e_cod" class="form-control"></div>
+            <div class="col-md-6"><label>Descrição do Insumo:</label><input type="text" id="e_prod" class="form-control" placeholder="Ex: Tecido Algodão Preto"></div>
+            <div class="col-md-4"><label>Fornecedor:</label><input type="text" id="e_forn" class="form-control"></div>
+            <div class="col-md-3"><label>Data Compra:</label><input type="date" id="e_data" class="form-control"></div>
+            <div class="col-md-3"><label>Quantidade:</label><input type="number" id="e_qde" class="form-control"></div>
+            <div class="col-md-3"><label>Vlr. Unitário:</label><input type="number" id="e_vlr" class="form-control"></div>
+            <div class="col-md-3"><label>&nbsp;</label><button class="btn btn-primary w-100" onclick="salvarEstoque()">DAR ENTRADA</button></div>
+        </div>
+    </div>
+
     <div id="aba-produtos" class="aba-conteudo aba-ativa">
-        <h5>🚀 Cadastro de Produto Final & Custos</h5>
-        <div class="row g-2 mb-3">
-            <div class="col-md-3"><label class="small fw-bold">Cód. Produto:</label><input type="text" id="p_cod" class="form-control"></div>
-            <div class="col-md-9"><label class="small fw-bold">Nome do Produto:</label><input type="text" id="p_nome" class="form-control"></div>
+        <h5>🚀 Engenharia do Produto</h5>
+        <div class="row g-2 mb-3 border-bottom pb-3">
+            <div class="col-md-2"><label>Cód. Ref:</label><input type="text" id="p_cod" class="form-control"></div>
+            <div class="col-md-10"><label>Nome do Produto Final:</label><input type="text" id="p_nome" class="form-control" placeholder="Ex: Camiseta Estampada Mod. A"></div>
         </div>
 
-        <h6 class="mt-4">🛠️ Composição de Matéria-Prima (MP)</h6>
-        <table class="table table-sm table-hover border">
-            <thead class="table-dark">
+        <h6>📝 Composição de Insumos</h6>
+        <table class="table table-sm border">
+            <thead class="table-light">
                 <tr>
-                    <th>Insumo / Matéria-Prima</th>
-                    <th width="120">Qtd</th>
-                    <th width="120">Custo Un.</th>
+                    <th>Matéria-Prima</th>
+                    <th width="120">Qtd Usada</th>
+                    <th width="120">Custo (Estoque)</th>
                     <th width="120">Subtotal</th>
                     <th width="40"></th>
                 </tr>
             </thead>
-            <tbody id="tabela_mp">
-                </tbody>
+            <tbody id="tabela_mp"></tbody>
         </table>
-        <button class="btn btn-outline-primary btn-sm mb-3" onclick="addLinhaMP()">+ Adicionar Insumo</button>
+        <button class="btn btn-outline-secondary btn-sm mb-4" onclick="addLinhaMP()">+ Incluir Insumo</button>
 
-        <div class="card-calculo">
+        <div class="bg-calculo">
             <div class="row g-3">
-                <div class="col-md-4">
-                    <label class="small fw-bold">Custo Total MP (R$):</label>
-                    <input type="text" id="p_custo_total_mp" class="form-control fw-bold text-danger" readonly value="0.00">
+                <div class="col-md-3"><label>Custo Total MP:</label><input type="text" id="p_custo_total_mp" class="form-control fw-bold" readonly value="0.00"></div>
+                <div class="col-md-2"><label>Margem %:</label><input type="number" id="p_margem" class="form-control" oninput="calcFinal()" value="50"></div>
+                <div class="col-md-2"><label>Fixo %:</label><input type="number" id="p_fixo" class="form-control" oninput="calcFinal()" value="15"></div>
+                <div class="col-md-2"><label>Cartão %:</label><input type="number" id="p_taxa" class="form-control" oninput="calcFinal()" value="5"></div>
+                <div class="col-md-3 text-end">
+                    <label class="d-block">PREÇO DE VENDA:</label>
+                    <span class="h3 text-success" id="vlr_final">R$ 0,00</span>
                 </div>
-                <div class="col-md-2"><label class="small fw-bold">Margem %:</label><input type="number" id="p_margem" class="form-control" oninput="calcularPrecoFinal()" value="30"></div>
-                <div class="col-md-2"><label class="small fw-bold">C.Fixo %:</label><input type="number" id="p_fixo" class="form-control" oninput="calcularPrecoFinal()" value="15"></div>
-                <div class="col-md-2"><label class="small fw-bold">Cartão %:</label><input type="number" id="p_taxa" class="form-control" oninput="calcularPrecoFinal()" value="5"></div>
-                <div class="col-md-2"><label class="small fw-bold">Imp/Dep %:</label><input type="text" class="form-control bg-secondary-subtle" readonly value="1.5"></div>
-            </div>
-            <div class="text-center mt-3">
-                <h4 class="text-success">PREÇO DE VENDA SUGERIDO: <span id="vlr_final">R$ 0,00</span></h4>
             </div>
         </div>
-        <button class="btn-salvar" onclick="salvarProduto()">SALVAR FICHA TÉCNICA NO BANCO</button>
+        <button class="btn btn-success w-100 mt-3 p-3 fw-bold" onclick="salvarProduto()">SALVAR PRODUTO NO BANCO DE DADOS</button>
     </div>
-
-    <div id="aba-vendas" class="aba-conteudo">
-        <div class="alert alert-info">O Módulo de Pedidos com 10 itens e Gerador de PDF está sendo integrado ao banco de dados...</div>
-    </div>
-    <div id="aba-clientes" class="aba-conteudo">
-        <h5>👥 Cadastro de Clientes</h5>
-        <div class="row g-2">
-            <div class="col-md-12"><input type="text" class="form-control" placeholder="Nome Completo"></div>
-            <div class="col-md-6"><input type="text" class="form-control" placeholder="WhatsApp"></div>
-            <div class="col-md-6"><input type="text" class="form-control" placeholder="Cidade"></div>
-            <button class="btn btn-primary mt-2">Cadastrar Cliente</button>
-        </div>
-    </div>
-    <div id="aba-estoque" class="aba-conteudo">
-        <h5>📦 Entrada de Matéria-Prima</h5>
-        <p class="small">Lançamento de notas e aumento de estoque.</p>
-    </div>
-
 </div>
 
 <script>
-    // ⚠️ COLOQUE SUA URL DO GOOGLE ABAIXO
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxptJfRSBxTmxJHyxFulO2zYWnrLAaZxd-U00VKITcp21rYTuExf7KYSOM05AR8qHoaBA/exec"; 
-
-    // Inicia com uma linha de MP
-    window.onload = () => { addLinhaMP(); };
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxptJfRSBxTmxJHyxFulO2zYWnrLAaZxd-U00VKITcp21rYTuExf7KYSOM05AR8qHoaBA/exec";
 
     function abrirAba(id) {
         document.querySelectorAll('.aba-conteudo').forEach(a => a.classList.remove('aba-ativa'));
@@ -102,20 +87,37 @@
         event.currentTarget.classList.add('active');
     }
 
+    // --- FUNÇÕES DE ESTOQUE ---
+    async function salvarEstoque() {
+        const dados = {
+            action: "addEstoque",
+            cod: document.getElementById('e_cod').value,
+            prod: document.getElementById('e_prod').value,
+            forn: document.getElementById('e_forn').value,
+            data: document.getElementById('e_data').value,
+            qde: document.getElementById('e_qde').value,
+            vlr: document.getElementById('e_vlr').value
+        };
+        await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(dados) });
+        alert("Entrada de estoque realizada!");
+        location.reload();
+    }
+
+    // --- FUNÇÕES DE FICHA TÉCNICA ---
     function addLinhaMP() {
         const tabela = document.getElementById('tabela_mp');
         const tr = document.createElement('tr');
         tr.innerHTML = `
-            <td><input type="text" class="form-control form-control-sm mp-nome" placeholder="Ex: Tecido, Linha, Botão"></td>
-            <td><input type="number" class="form-control form-control-sm mp-qtd" oninput="calcMP()" value="1"></td>
-            <td><input type="number" class="form-control form-control-sm mp-vlr" oninput="calcMP()" value="0"></td>
+            <td><input type="text" class="form-control form-control-sm" placeholder="Nome da MP"></td>
+            <td><input type="number" class="form-control form-control-sm mp-qtd" oninput="calcTotalMP()" value="1"></td>
+            <td><input type="number" class="form-control form-control-sm mp-vlr" oninput="calcTotalMP()" value="0"></td>
             <td class="mp-subtotal fw-bold">0.00</td>
-            <td><button class="btn btn-sm text-danger" onclick="this.parentElement.parentElement.remove(); calcMP()">✕</button></td>
+            <td><button class="btn btn-sm text-danger" onclick="this.parentElement.parentElement.remove(); calcTotalMP()">✕</button></td>
         `;
         tabela.appendChild(tr);
     }
 
-    function calcMP() {
+    function calcTotalMP() {
         let total = 0;
         document.querySelectorAll('#tabela_mp tr').forEach(linha => {
             const q = parseFloat(linha.querySelector('.mp-qtd').value) || 0;
@@ -125,28 +127,21 @@
             total += sub;
         });
         document.getElementById('p_custo_total_mp').value = total.toFixed(2);
-        calcularPrecoFinal();
+        calcFinal();
     }
 
-    function calcularPrecoFinal() {
+    function calcFinal() {
         const custo = parseFloat(document.getElementById('p_custo_total_mp').value) || 0;
-        const margem = parseFloat(document.getElementById('p_margem').value) || 0;
-        const fixo = parseFloat(document.getElementById('p_fixo').value) || 0;
-        const taxa = parseFloat(document.getElementById('p_taxa').value) || 0;
-        const imp_dep = 1.5;
-
-        const totalPerc = margem + fixo + taxa + imp_dep;
-        const markup = 1 - (totalPerc / 100);
+        const perc = (parseFloat(document.getElementById('p_margem').value) || 0) + 
+                     (parseFloat(document.getElementById('p_fixo').value) || 0) + 
+                     (parseFloat(document.getElementById('p_taxa').value) || 0) + 1.5;
+        
+        const markup = 1 - (perc / 100);
         const venda = custo / (markup > 0 ? markup : 1);
-
         document.getElementById('vlr_final').innerText = "R$ " + venda.toLocaleString('pt-BR', {minimumFractionDigits: 2});
     }
 
     async function salvarProduto() {
-        const btn = event.target;
-        btn.disabled = true;
-        btn.innerText = "SALVANDO NO GOOGLE SHEETS...";
-
         const dados = {
             action: "addProduto",
             cod: document.getElementById('p_cod').value,
@@ -157,17 +152,11 @@
             taxa: document.getElementById('p_taxa').value,
             total: document.getElementById('vlr_final').innerText
         };
-
-        try {
-            await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(dados) });
-            alert("Produto e Ficha Técnica salvos!");
-            location.reload();
-        } catch(e) {
-            alert("Erro ao salvar.");
-            btn.disabled = false;
-        }
+        await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(dados) });
+        alert("Ficha técnica salva!");
     }
-</script>
 
+    window.onload = () => { addLinhaMP(); };
+</script>
 </body>
 </html>
